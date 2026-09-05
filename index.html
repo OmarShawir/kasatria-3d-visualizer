@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kasatria 3D Data Visualizer</title>
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/src/styles/main.css" />
+    <!-- Google Identity Services SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+  <body>
+    <!-- Google OAuth Login Screen -->
+    <div id="login-screen">
+      <div class="login-card">
+        <div class="login-logo">Kasatria 3D</div>
+        <p class="login-subtitle">Sign in to access the Interactive Data Visualizer</p>
+        
+        <div class="google-btn-wrapper">
+          <div id="google-btn"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3D CSS3D Viewport Container -->
+    <div id="container"></div>
+
+    <!-- UI Overlay -->
+    <div id="ui-overlay" style="display: none;">
+      <header class="app-header">
+        <div class="header-brand">
+          <h1>Kasatria 3D Data Visualizer</h1>
+        </div>
+        <div class="header-controls">
+          <div class="search-box">
+            <input type="text" id="search-input" placeholder="Search entity, interest..." />
+          </div>
+          <div class="stats-badge">
+            Records: <strong id="stat-total">200</strong> | Avg Net Worth: <strong id="stat-avg">$0</strong>
+          </div>
+          <button id="logout-btn" class="logout-btn" title="Sign Out">Sign Out</button>
+        </div>
+      </header>
+
+      <!-- 4 Layout Mode Buttons -->
+      <div id="menu">
+        <button id="table" class="active">Table</button>
+        <button id="sphere">Sphere</button>
+        <button id="helix">Helix</button>
+        <button id="grid">Grid</button>
+      </div>
+
+      <!-- Net Worth Color Legend (Image B Style) -->
+      <div id="legend">
+        <span class="legend-label">LOW (&lt;$100K)</span>
+        <div class="gradient-bar"></div>
+        <span class="legend-label">HIGH (&gt;$200K)</span>
+      </div>
+    </div>
+
+    <!-- 2D Entity Detail Modal -->
+    <div id="detail-modal" class="modal-overlay" style="display: none;">
+      <div class="modal-card">
+        <button id="modal-close" class="modal-close-btn">&times;</button>
+        <div class="modal-header">
+          <span id="modal-number" class="modal-badge">#0</span>
+          <img id="modal-photo" src="" alt="Profile Photo" class="modal-photo" />
+          <h2 id="modal-name" class="modal-title">Entity Name</h2>
+        </div>
+        <div class="modal-body">
+          <div class="modal-info-row">
+            <span class="info-label">Country:</span>
+            <strong id="modal-country" class="info-val">-</strong>
+          </div>
+          <div class="modal-info-row">
+            <span class="info-label">Interest:</span>
+            <strong id="modal-interest" class="info-val">-</strong>
+          </div>
+          <div class="modal-info-row">
+            <span class="info-label">Net Worth:</span>
+            <strong id="modal-worth" class="info-val worth-tag">-</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
