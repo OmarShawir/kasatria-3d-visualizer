@@ -1,60 +1,21 @@
 import * as THREE from "three";
 
 /**
- * Creates Periodic Table Silhouette Layout
- * 18 columns wide with chemical element period gaps and lanthanide/actinide spacing.
+ * Creates Table Layout (20 Columns × 10 Rows arrangement = 200 tiles)
  */
 export function createTableLayout(count) {
   const targets = [];
-  const tableCoords = [];
-
-  // Period 1: Col 0 (H), Col 17 (He)
-  tableCoords.push([0, 0], [17, 0]);
-
-  // Period 2: Cols 0-1, Cols 12-17
-  for (let c = 0; c <= 1; c++) tableCoords.push([c, 1]);
-  for (let c = 12; c <= 17; c++) tableCoords.push([c, 1]);
-
-  // Period 3: Cols 0-1, Cols 12-17
-  for (let c = 0; c <= 1; c++) tableCoords.push([c, 2]);
-  for (let c = 12; c <= 17; c++) tableCoords.push([c, 2]);
-
-  // Periods 4-7: Cols 0-17
-  for (let r = 3; r <= 6; r++) {
-    for (let c = 0; c <= 17; c++) {
-      tableCoords.push([c, r]);
-    }
-  }
-
-  // Lanthanides & Actinides: Cols 2-16
-  for (let r = 8; r <= 9; r++) {
-    for (let c = 2; c <= 16; c++) {
-      tableCoords.push([c, r]);
-    }
-  }
-
-  let extRow = 11;
-  let extCol = 0;
+  const cols = 20;
+  const rows = Math.ceil(count / cols);
 
   for (let i = 0; i < count; i++) {
     const object = new THREE.Object3D();
-    let col, row;
 
-    if (i < tableCoords.length) {
-      col = tableCoords[i][0];
-      row = tableCoords[i][1];
-    } else {
-      col = extCol;
-      row = extRow;
-      extCol++;
-      if (extCol >= 18) {
-        extCol = 0;
-        extRow++;
-      }
-    }
+    const col = i % cols;
+    const row = Math.floor(i / cols);
 
-    object.position.x = col * 145 - 1230;
-    object.position.y = -(row * 185) + 850;
+    object.position.x = col * 160 - ((cols - 1) * 160) / 2;
+    object.position.y = -(row * 200) + ((Math.min(rows, 10) - 1) * 200) / 2;
     object.position.z = 0;
     object.rotation.set(0, 0, 0);
 
