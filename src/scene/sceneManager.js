@@ -102,6 +102,63 @@ export class SceneManager {
   }
 
   /**
+   * Dynamically updates 3D scene objects with new dataset records.
+   * @param {Array<Object>} data - Updated array of candidate record objects
+   */
+  updateData(data) {
+    if (!this.scene) return;
+
+    // Remove existing CSS3DObjects from scene
+    this.objects.forEach((obj) => {
+      this.scene.remove(obj);
+      if (obj.element && obj.element.parentNode) {
+        obj.element.parentNode.removeChild(obj.element);
+      }
+    });
+
+    this.objects = [];
+    this.dataMap.clear();
+
+    // Create new 3D CSS Objects for updated dataset records
+    data.forEach((item) => {
+      const el = createCardElement(item);
+      const cssObject = new CSS3DObject(el);
+      cssObject.position.x = Math.random() * 4000 - 2000;
+      cssObject.position.y = Math.random() * 4000 - 2000;
+      cssObject.position.z = Math.random() * 4000 - 2000;
+
+      this.dataMap.set(cssObject, item);
+
+      el.addEventListener("click", () => {
+        this.focusOnCard(cssObject, 1200);
+        showEntityModal(item);
+      });
+
+      this.scene.add(cssObject);
+      this.objects.push(cssObject);
+    });
+
+    // Re-calculate layout matrices
+    const count = this.objects.length;
+    this.targets = {
+      table: createTableLayout(count),
+      sphere: createSphereLayout(count),
+      helix: createDoubleHelixLayout(count),
+      grid: createGridLayout(count)
+    };
+
+    // Transition objects to active layout positions
+    if (this.targets[this.activeLayout]) {
+      this.transform(this.targets[this.activeLayout], 1200);
+    }
+
+    // Re-apply search filter if query is currently set
+    if (this.currentSearchQuery) {
+      this.filterCards(this.currentSearchQuery);
+    }
+  }
+
+  /**
    * Pointer-directed zooming: lerps camera target towards 3D focal point under pointer
    */
   setupCursorZoom() {

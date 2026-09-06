@@ -5,15 +5,9 @@ export function parseCurrency(val) {
   return parseFloat(String(val).replace(/[^0-9.-]+/g, "")) || 0;
 }
 
-export async function fetchSheetData(url) {
-  if (!url || url.includes("YOUR_GOOGLE_SHEET") || url.includes("2PACX-1vTQg3x9N54G4lW7W0sR8G9vR-sample")) {
-    console.warn("Using sample mock dataset of 200 records.");
-    return generateSampleData(200);
-  }
-
-  return new Promise((resolve) => {
-    Papa.parse(url, {
-      download: true,
+export async function parseCSVFile(file) {
+  return new Promise((resolve, reject) => {
+    Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
@@ -34,11 +28,68 @@ export async function fetchSheetData(url) {
         resolve(cleaned);
       },
       error: (err) => {
-        console.warn("Error fetching CSV, loading sample dataset:", err);
-        resolve(generateSampleData(200));
+        reject(err);
       }
     });
   });
+}
+
+export async function fetchSheetData(url) {
+  if (!url || url.includes("YOUR_GOOGLE_SHEET") || url.includes("2PACX-1vTQg3x9N54G4lW7W0sR8G9vR-sample")) {
+    console.warn("Using sample mock dataset of 200 records.");
+    return generateSampleData(200);
+  }
+
+  try {
+    const cacheBusterUrl = url.includes("?") 
+      ? `${url}&_t=${Date.now()}`
+      : `${url}?_t=${Date.now()}`;
+
+    const response = await fetch(cacheBusterUrl, {
+      cache: "no-store",
+      headers: {
+        "Pragma": "no-cache",
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error ${response.status}`);
+    }
+
+    const csvText = await response.text();
+
+    return new Promise((resolve) => {
+      Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          if (!results.data || results.data.length === 0) {
+            resolve(generateSampleData(200));
+            return;
+          }
+          const cleaned = results.data.map((item, idx) => ({
+            id: idx + 1,
+            name: item.Name || item.name || `Person ${idx + 1}`,
+            photo: item.Photo || item.photo || "",
+            age: item.Age || item.age || Math.floor(Math.random() * 35 + 22),
+            country: item.Country || item.country || "MY",
+            interest: item.Interest || item.interest || "Technology",
+            rawNetWorth: (item["Net Worth"] || item[" Net Worth "] || item.netWorth || "$150,000.00").trim(),
+            netWorth: parseCurrency(item["Net Worth"] || item[" Net Worth "] || item.netWorth || "150000")
+          }));
+          resolve(cleaned);
+        },
+        error: (err) => {
+          console.warn("Error parsing CSV data, loading sample dataset:", err);
+          resolve(generateSampleData(200));
+        }
+      });
+    });
+  } catch (err) {
+    console.warn("Error fetching CSV from Google Sheets, loading sample dataset:", err);
+    return generateSampleData(200);
+  }
 }
 
 function generateSampleData(count = 200) {
